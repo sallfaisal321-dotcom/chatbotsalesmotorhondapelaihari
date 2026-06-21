@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Honda Assistant - Honda Pelaihari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #cc0000 0%, #880000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 90vh;
+            max-height: 800px;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #cc0000 0%, #880000 100%);
+            color: white;
+            padding: 16px 20px 12px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .chat-header .subtitle {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .chat-header .contact-info {
+            font-size: 11px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #4caf50;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 10px;
+            margin-top: 6px;
+        }
+
+        .period-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 10px;
+            margin-top: 4px;
+            margin-left: 6px;
+        }
+
+        .reset-chat {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        .reset-chat:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8f9fa;
+        }
+
+        .message-bot {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .bot-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #cc0000, #880000);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .bot-text {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-top-left-radius: 4px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #202124;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-text {
+            background: #cc0000;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-top-right-radius: 4px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-input {
+            background: white;
+            padding: 12px 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input input:focus { border-color: #cc0000; }
+
+        .chat-input button {
+            background: #cc0000;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .chat-input button:hover { background: #880000; }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .quick-btn {
+            background: #fdecea;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #cc0000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover { background: #f8c4c4; }
+
+        .motor-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .motor-image {
+            width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #f5f5f5;
+            margin-bottom: 8px;
+        }
+
+        .motor-name {
+            font-weight: bold;
+            font-size: 15px;
+            color: #cc0000;
+        }
+
+        .motor-tipe {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .motor-price {
+            font-size: 17px;
+            font-weight: bold;
+            color: #333;
+            margin: 6px 0 2px;
+        }
+
+        .motor-dp {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .installment {
+            background: #fdecea;
+            padding: 8px 10px;
+            border-radius: 10px;
+            margin-top: 8px;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: #f1f1f1; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+        .wa-button {
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 24px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .wa-button:hover {
+            background: #128C7E;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 32px; }
+            .chat-container { max-width: 500px; height: 85vh; border-radius: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <button class="reset-chat" onclick="resetChat()" title="Reset percakapan">🗑️ Reset</button>
+        <h1>🏍️ Honda Pelaihari</h1>
+        <div class="subtitle">Jl. H. Boejasin No.168, Angsau Kec. Pelaihari</div>
+        <div class="contact-info">FAISAL &nbsp;|&nbsp; HUB: 0851 6361 4531</div>
+        <div>
+            <span class="status-badge">● Online 24 Jam</span>
+            <span class="period-badge">📅 Daftar harga berlaku 1–30 Juni 2026</span>
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Tanya harga motor..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
+</div>
+
+<script>
+// =====================================================
+// DATABASE MOTOR — HONDA PELAIHARI
+// Program Reguler, berlaku 1–30 Juni 2026
+// =====================================================
+const motorData = [
+    // ============ CUB / BEBEK ============
+    {
+        nama: "Revo Fit FI (GB4)",
+        tipe: "Cub",
+        otr: 18815000,
+        uangMuka: 1750000,
+        gambar: "images/revo-fit-fi.jpg",
+        angsuran: { 6: 3486000, 12: 1936000, 18: 1397000, 24: 1150000, 30: 1006000, 36: 915000, 42: 846000 }
+    },
+    {
+        nama: "Revo X (GD4)",
+        tipe: "Cub",
+        otr: 20530000,
+        uangMuka: 1850000,
+        gambar: "images/revo-x.jpg",
+        angsuran: { 6: 3793000, 12: 2107000, 18: 1520000, 24: 1252000, 30: 1095000, 36: 996000, 42: 920000 }
+    },
+    {
+        nama: "Supra X 125 SW MMC (GE5)",
+        tipe: "Cub",
+        otr: 22040000,
+        uangMuka: 2050000,
+        gambar: "images/supra-x-125.jpg",
+        angsuran: { 6: 4043000, 12: 2246000, 18: 1620000, 24: 1334000, 30: 1167000, 36: 1062000, 42: 981000 }
+    },
+    {
+        nama: "Supra X 125 CW MMC (GF5)",
+        tipe: "Cub",
+        otr: 23110000,
+        uangMuka: 2150000,
+        gambar: "images/supra-x-125.jpg",
+        angsuran: { 6: 4228000, 12: 2349000, 18: 1695000, 24: 1395000, 30: 1220000, 36: 1111000, 42: 1026000 }
+    },
+    {
+        nama: "Supra GTR 150 (HJ9)",
+        tipe: "Cub",
+        otr: 28030000,
+        uangMuka: 2350000,
+        gambar: "images/supra-gtr-150.jpg",
+        angsuran: { 6: 5029000, 12: 2751000, 18: 2005000, 24: 1639000, 30: 1425000, 36: 1289000, 42: 1185000 }
+    },
+    {
+        nama: "Supra GTR 150 (HJK)",
+        tipe: "Cub",
+        otr: 28285000,
+        uangMuka: 2450000,
+        gambar: "images/supra-gtr-150.jpg",
+        angsuran: { 6: 5058000, 12: 2767000, 18: 2016000, 24: 1649000, 30: 1433000, 36: 1297000, 42: 1192000 }
+    },
+
+    // ============ MATIC ============
+    {
+        nama: "New Beat Sporty CBS (MJ1)",
+        tipe: "Matic",
+        otr: 19910000,
+        uangMuka: 1650000,
+        gambar: "images/beat-sporty.jpg",
+        angsuran: { 6: 3781000, 12: 2097000, 18: 1522000, 24: 1262000, 30: 1100000, 36: 1004000, 42: 919000 }
+    },
+    {
+        nama: "New Beat Sporty CBS ISS (MK1)",
+        tipe: "Matic",
+        otr: 20690000,
+        uangMuka: 1700000,
+        gambar: "images/beat-sporty.jpg",
+        angsuran: { 6: 3923000, 12: 2176000, 18: 1579000, 24: 1310000, 30: 1142000, 36: 1042000, 42: 954000 }
+    },
+    {
+        nama: "New Beat Sporty DLX Smart (ML1)",
+        tipe: "Matic",
+        otr: 21220000,
+        uangMuka: 1750000,
+        gambar: "images/beat-sporty.jpg",
+        angsuran: { 6: 4016000, 12: 2228000, 18: 1617000, 24: 1341000, 30: 1169000, 36: 1067000, 42: 977000 }
+    },
+    {
+        nama: "Beat Sporty DLX Smart A (MLV)",
+        tipe: "Matic",
+        otr: 21714000,
+        uangMuka: 1800000,
+        gambar: "images/beat-sporty.jpg",
+        angsuran: { 6: 4103000, 12: 2276000, 18: 1652000, 24: 1370000, 30: 1194000, 36: 1090000, 42: 998000 }
+    },
+    {
+        nama: "Beat Sporty DLX Smart A (MLX)",
+        tipe: "Matic",
+        otr: 21556000,
+        uangMuka: 1800000,
+        gambar: "images/beat-sporty.jpg",
+        angsuran: { 6: 4072000, 12: 2259000, 18: 1640000, 24: 1360000, 30: 1185000, 36: 1082000, 42: 990000 }
+    },
+    {
+        nama: "New Beat Street (MM1)",
+        tipe: "Matic",
+        otr: 20785000,
+        uangMuka: 1700000,
+        gambar: "images/beat-street.jpg",
+        angsuran: { 6: 3941000, 12: 2187000, 18: 1587000, 24: 1316000, 30: 1147000, 36: 1047000, 42: 958000 }
+    },
+    {
+        nama: "Beat Street A (MMX)",
+        tipe: "Matic",
+        otr: 21128000,
+        uangMuka: 1750000,
+        gambar: "images/beat-street.jpg",
+        angsuran: { 6: 3998000, 12: 2218000, 18: 1610000, 24: 1335000, 30: 1164000, 36: 1062000, 42: 972000 }
+    },
+    {
+        nama: "Genio CBS (LY1)",
+        tipe: "Matic",
+        otr: 20900000,
+        uangMuka: 1700000,
+        gambar: "images/genio.jpg",
+        angsuran: { 6: 3935000, 12: 2207000, 18: 1591000, 24: 1317000, 30: 1158000, 36: 1057000, 42: 981000 }
+    },
+    {
+        nama: "Genio CBS (LY2-BK)",
+        tipe: "Matic",
+        otr: 20975000,
+        uangMuka: 1700000,
+        gambar: "images/genio.jpg",
+        angsuran: { 6: 3935000, 12: 2207000, 18: 1591000, 24: 1317000, 30: 1158000, 36: 1057000, 42: 981000 }
+    },
+    {
+        nama: "Genio CBS ISS (LZ1)",
+        tipe: "Matic",
+        otr: 21450000,
+        uangMuka: 1750000,
+        gambar: "images/genio.jpg",
+        angsuran: { 6: 4032000, 12: 2261000, 18: 1630000, 24: 1349000, 30: 1186000, 36: 1083000, 42: 1005000 }
+    },
+    {
+        nama: "Genio CBS ISS (LZ2)",
+        tipe: "Matic",
+        otr: 21525000,
+        uangMuka: 1750000,
+        gambar: "images/genio.jpg",
+        angsuran: { 6: 4032000, 12: 2261000, 18: 1630000, 24: 1349000, 30: 1186000, 36: 1083000, 42: 1005000 }
+    },
+    {
+        nama: "Genio CBS (LY2-PD, LY2-PH)",
+        tipe: "Matic",
+        otr: 21175000,
+        uangMuka: 1700000,
+        gambar: "images/genio.jpg",
+        angsuran: { 6: 3974000, 12: 2229000, 18: 1606000, 24: 1330000, 30: 1169000, 36: 1067000, 42: 990000 }
+    },
+    {
+        nama: "Scoopy Energetic & Fashion (MR0, MRA)",
+        tipe: "Matic Fashion",
+        otr: 23645000,
+        uangMuka: 1950000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4402000, 12: 2481000, 18: 1804000, 24: 1499000, 30: 1316000, 36: 1204000, 42: 1120000 }
+    },
+    {
+        nama: "Scoopy Energetic A (MRZ)",
+        tipe: "Matic Fashion",
+        otr: 25032000,
+        uangMuka: 2050000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4650000, 12: 2621000, 18: 1906000, 24: 1584000, 30: 1390000, 36: 1272000, 42: 1183000 }
+    },
+    {
+        nama: "Scoopy Stylish A (MSZ)",
+        tipe: "Matic Fashion",
+        otr: 25247000,
+        uangMuka: 2100000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4682000, 12: 2639000, 18: 1919000, 24: 1595000, 30: 1400000, 36: 1281000, 42: 1191000 }
+    },
+    {
+        nama: "Scoopy Fashion (MRB)",
+        tipe: "Matic Fashion",
+        otr: 23720000,
+        uangMuka: 2000000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4407000, 12: 2484000, 18: 1806000, 24: 1501000, 30: 1317000, 36: 1205000, 42: 1121000 }
+    },
+    {
+        nama: "Scoopy Stylish & Prestige (MSB, MS1)",
+        tipe: "Matic Fashion",
+        otr: 24615000,
+        uangMuka: 2100000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4560000, 12: 2570000, 18: 1869000, 24: 1553000, 30: 1363000, 36: 1247000, 42: 1160000 }
+    },
+    {
+        nama: "Scoopy Fashion A (MRT)",
+        tipe: "Matic Fashion",
+        otr: 24472000,
+        uangMuka: 2000000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4552000, 12: 2566000, 18: 1866000, 24: 1550000, 30: 1361000, 36: 1245000, 42: 1158000 }
+    },
+    {
+        nama: "Scoopy Stylish & Prestige A (MSW, MSP)",
+        tipe: "Matic Fashion",
+        otr: 25367000,
+        uangMuka: 2100000,
+        gambar: "images/scoopy.jpg",
+        angsuran: { 6: 4705000, 12: 2652000, 18: 1929000, 24: 1603000, 30: 1407000, 36: 1287000, 42: 1197000 }
+    },
+    {
+        nama: "New Vario 125 CBS (ND0)",
+        tipe: "Matic",
+        otr: 25115000,
+        uangMuka: 2100000,
+        gambar: "images/vario-125.jpg",
+        angsuran: { 6: 4606000, 12: 2561000, 18: 1882000, 24: 1559000, 30: 1370000, 36: 1251000, 42: 1161000 }
+    },
+    {
+        nama: "New Vario 125 CBS ISS (NE0)",
+        tipe: "Matic",
+        otr: 26880000,
+        uangMuka: 2200000,
+        gambar: "images/vario-125.jpg",
+        angsuran: { 6: 4978000, 12: 2792000, 18: 2012000, 24: 1666000, 30: 1465000, 36: 1337000, 42: 1241000 }
+    },
+    {
+        nama: "New Vario 125 Street (NF0)",
+        tipe: "Matic",
+        otr: 27314000,
+        uangMuka: 2300000,
+        gambar: "images/vario-125.jpg",
+        angsuran: { 6: 5042000, 12: 2828000, 18: 2038000, 24: 1688000, 30: 1484000, 36: 1355000, 42: 1257000 }
+    },
+    {
+        nama: "Vario 125 Street A (NFV)",
+        tipe: "Matic",
+        otr: 27439000,
+        uangMuka: 2300000,
+        gambar: "images/vario-125.jpg",
+        angsuran: { 6: 5066000, 12: 2842000, 18: 2048000, 24: 1696000, 30: 1491000, 36: 1361000, 42: 1263000 }
+    },
+    {
+        nama: "Vario 125 Street A (NFZ)",
+        tipe: "Matic",
+        otr: 28527000,
+        uangMuka: 2400000,
+        gambar: "images/vario-125.jpg",
+        angsuran: { 6: 5257000, 12: 2949000, 18: 2125000, 24: 1760000, 30: 1547000, 36: 1413000, 42: 1311000 }
+    },
+    {
+        nama: "Stylo CBS (MF1)",
+        tipe: "Matic Premium",
+        otr: 30025000,
+        uangMuka: 2500000,
+        gambar: "images/stylo.jpg",
+        angsuran: { 6: 5526000, 12: 3092000, 18: 2242000, 24: 1850000, 30: 1627000, 36: 1485000, 42: 1378000 }
+    },
+    {
+        nama: "Stylo CBS A (MFV)",
+        tipe: "Matic Premium",
+        otr: 31698000,
+        uangMuka: 2600000,
+        gambar: "images/stylo.jpg",
+        angsuran: { 6: 5829000, 12: 3262000, 18: 2365000, 24: 1952000, 30: 1716000, 36: 1567000, 42: 1454000 }
+    },
+    {
+        nama: "Stylo ABS (MG1)",
+        tipe: "Matic Premium",
+        otr: 33010000,
+        uangMuka: 2700000,
+        gambar: "images/stylo.jpg",
+        angsuran: { 6: 6063000, 12: 3393000, 18: 2460000, 24: 2030000, 30: 1785000, 36: 1629000, 42: 1512000 }
+    },
+    {
+        nama: "Stylo ABS Special Color (MGA)",
+        tipe: "Matic Premium",
+        otr: 33510000,
+        uangMuka: 2800000,
+        gambar: "images/stylo.jpg",
+        angsuran: { 6: 6140000, 12: 3436000, 18: 2491000, 24: 2056000, 30: 1808000, 36: 1650000, 42: 1532000 }
+    },
+    {
+        nama: "Stylo ABS SPC A (MGX)",
+        tipe: "Matic Premium",
+        otr: 34510000,
+        uangMuka: 2800000,
+        gambar: "images/stylo.jpg",
+        angsuran: { 6: 6333000, 12: 3544000, 18: 2569000, 24: 2120000, 30: 1864000, 36: 1702000, 42: 1579000 }
+    },
+    {
+        nama: "Vario 160 CBS (LV1)",
+        tipe: "Matic",
+        otr: 28905000,
+        uangMuka: 2350000,
+        gambar: "images/vario-160.jpg",
+        angsuran: { 6: 5339000, 12: 2995000, 18: 2158000, 24: 1787000, 30: 1491000, 36: 1435000, 42: 1331000 }
+    },
+    {
+        nama: "Vario 160 CBS (LVE)",
+        tipe: "Matic",
+        otr: 29155000,
+        uangMuka: 2400000,
+        gambar: "images/vario-160.jpg",
+        angsuran: { 6: 5378000, 12: 3017000, 18: 2174000, 24: 1800000, 30: 1583000, 36: 1445000, 42: 1341000 }
+    },
+    {
+        nama: "Vario 160 CBS A (LVZ)",
+        tipe: "Matic",
+        otr: 29670000,
+        uangMuka: 2450000,
+        gambar: "images/vario-160.jpg",
+        angsuran: { 6: 5527000, 12: 3067000, 18: 2226000, 24: 1846000, 30: 1609000, 36: 1469000, 42: 1345000 }
+    },
+    {
+        nama: "Vario 160 CBS A (LVS)",
+        tipe: "Matic",
+        otr: 31208000,
+        uangMuka: 2550000,
+        gambar: "images/vario-160.jpg",
+        angsuran: { 6: 5682000, 12: 3160000, 18: 2323000, 24: 1923000, 30: 1691000, 36: 1544000, 42: 1433000 }
+    },
+    {
+        nama: "Vario 160 ABS (LW1)",
+        tipe: "Matic",
+        otr: 31895000,
+        uangMuka: 2600000,
+        gambar: "images/vario-160.jpg",
+        angsuran: { 6: 5867000, 12: 3291000, 18: 2372000, 24: 1964000, 30: 1727000, 36: 1577000, 42: 1463000 }
+    },
+    {
+        nama: "PCX 160 CBS (MT1)",
+        tipe: "Matic Premium",
+        otr: 35220000,
+        uangMuka: 2900000,
+        gambar: "images/pcx-160.jpg",
+        angsuran: { 6: 6450000, 12: 3610000, 18: 2617000, 24: 2160000, 30: 1899000, 36: 1734000, 42: 1609000 }
+    },
+    {
+        nama: "PCX 160 CBS A (MTZ)",
+        tipe: "Matic Premium",
+        otr: 36459000,
+        uangMuka: 4300000,
+        gambar: "images/pcx-160.jpg",
+        angsuran: { 6: 6422000, 12: 3596000, 18: 2608000, 24: 2153000, 30: 1894000, 36: 1730000, 42: 1605000 }
+    },
+    {
+        nama: "PCX 160 ABS (MV1)",
+        tipe: "Matic Premium",
+        otr: 38720000,
+        uangMuka: 3100000,
+        gambar: "images/pcx-160.jpg",
+        angsuran: { 6: 7086000, 12: 3966000, 18: 2875000, 24: 2373000, 30: 2086000, 36: 1905000, 42: 1768000 }
+    },
+    {
+        nama: "PCX 160 ABS A (MVZ)",
+        tipe: "Matic Premium",
+        otr: 39887000,
+        uangMuka: 3200000,
+        gambar: "images/pcx-160.jpg",
+        angsuran: { 6: 7292000, 12: 4081000, 18: 2959000, 24: 2442000, 30: 2147000, 36: 1960000, 42: 1819000 }
+    },
+    {
+        nama: "PCX 160 RS A (MWZ)",
+        tipe: "Matic Premium",
+        otr: 43184000,
+        uangMuka: 4700000,
+        gambar: "images/pcx-160-rs.jpg",
+        angsuran: { 6: 7641000, 12: 4278000, 18: 3103000, 24: 2561000, 30: 2253000, 36: 2057000, 42: 1909000 }
+    },
+    {
+        nama: "ADV 160 CBS (NA0)",
+        tipe: "Adventure",
+        otr: 38060000,
+        uangMuka: 5100000,
+        gambar: "images/adv-160.jpg",
+        angsuran: { 6: 6578000, 12: 3684000, 18: 2673000, 24: 2207000, 30: 1942000, 36: 1773000, 42: 1646000 }
+    },
+    {
+        nama: "ADV 160 ABS (MB0, NB0)",
+        tipe: "Adventure",
+        otr: 40895000,
+        uangMuka: 5300000,
+        gambar: "images/adv-160.jpg",
+        angsuran: { 6: 7086000, 12: 3968000, 18: 2879000, 24: 2377000, 30: 2091000, 36: 1910000, 42: 1772000 }
+    },
+    {
+        nama: "ADV 160 RS (NC0)",
+        tipe: "Adventure",
+        otr: 42409000,
+        uangMuka: 5500000,
+        gambar: "images/adv-160-rs.jpg",
+        angsuran: { 6: 7340000, 12: 4110000, 18: 2982000, 24: 2462000, 30: 2166000, 36: 1978000, 42: 1836000 }
+    },
+
+    // ============ SPORT ============
+    {
+        nama: "CB Verza SW (KF0)",
+        tipe: "Sport",
+        otr: 25235000,
+        uangMuka: 2200000,
+        gambar: "images/cb-verza.jpg",
+        angsuran: { 6: 4566000, 12: 2511000, 18: 1840000, 24: 1512000, 30: 1320000, 36: 1199000, 42: 1106000 }
+    },
+    {
+        nama: "CB Verza CW (KG0)",
+        tipe: "Sport",
+        otr: 25890000,
+        uangMuka: 2200000,
+        gambar: "images/cb-verza.jpg",
+        angsuran: { 6: 4689000, 12: 2579000, 18: 1889000, 24: 1553000, 30: 1356000, 36: 1232000, 42: 1136000 }
+    },
+    {
+        nama: "CB Verza CW A (KGZ, KGX)",
+        tipe: "Sport",
+        otr: 26364000,
+        uangMuka: 2200000,
+        gambar: "images/cb-verza.jpg",
+        angsuran: { 6: 4828000, 12: 2679000, 18: 1924000, 24: 1581000, 30: 1380000, 36: 1254000, 42: 1157000 }
+    },
+    {
+        nama: "New Sonic (HD7)",
+        tipe: "Sport",
+        otr: 29100000,
+        uangMuka: 2400000,
+        gambar: "images/sonic.jpg",
+        angsuran: { 6: 5255000, 12: 2891000, 18: 2117000, 24: 1740000, 30: 1519000, 36: 1380000, 42: 1273000 }
+    },
+    {
+        nama: "New Sonic (HDN, HDP)",
+        tipe: "Sport",
+        otr: 29505000,
+        uangMuka: 2500000,
+        gambar: "images/sonic.jpg",
+        angsuran: { 6: 5313000, 12: 2922000, 18: 2141000, 24: 1759000, 30: 1536000, 36: 1396000, 42: 1288000 }
+    },
+    {
+        nama: "CB150 SE (JS0)",
+        tipe: "Sport",
+        otr: 35990000,
+        uangMuka: 3350000,
+        gambar: "images/cb150-se.jpg",
+        angsuran: { 6: 6373000, 12: 3506000, 18: 2569000, 24: 2112000, 30: 1844000, 36: 1676000, 42: 1546000 }
+    },
+    {
+        nama: "CB150X STD (JX0)",
+        tipe: "Sport",
+        otr: 35270000,
+        uangMuka: 3350000,
+        gambar: "images/cb150x.jpg",
+        angsuran: { 6: 6238000, 12: 3432000, 18: 2515000, 24: 2067000, 30: 1805000, 36: 1640000, 42: 1513000 }
+    },
+    {
+        nama: "CB150X SE (JXA)",
+        tipe: "Sport",
+        otr: 35775000,
+        uangMuka: 3350000,
+        gambar: "images/cb150x.jpg",
+        angsuran: { 6: 6333000, 12: 3484000, 18: 2553000, 24: 2098000, 30: 1832000, 36: 1665000, 42: 1536000 }
+    },
+    {
+        nama: "CBR 150R STD (JM1, JMJ)",
+        tipe: "Sport",
+        otr: 38500000,
+        uangMuka: 3650000,
+        gambar: "images/cbr150r.jpg",
+        angsuran: { 6: 6789000, 12: 3735000, 18: 2737000, 24: 2250000, 30: 1965000, 36: 1785000, 42: 1647000 }
+    },
+    {
+        nama: "CBR 150R STD (JMG, JMH)",
+        tipe: "Sport",
+        otr: 39207000,
+        uangMuka: 3650000,
+        gambar: "images/cbr150r.jpg",
+        angsuran: { 6: 6922000, 12: 3808000, 18: 2790000, 24: 2294000, 30: 2003000, 36: 1820000, 42: 1679000 }
+    },
+    {
+        nama: "CRF 150 L A (ESH, ESI, ESJ, ESA, ESB, ESC, ESU)",
+        tipe: "Sport Adventure",
+        otr: 38659000,
+        uangMuka: 3200000,
+        gambar: "images/crf150l.jpg",
+        angsuran: { 6: 6979000, 12: 3873000, 18: 2782000, 24: 2286000, 30: 1997000, 36: 1814000, 42: 1674000 }
+    },
+    {
+        nama: "CRF 150 (ES5, ES6, ES7, ESE, ESF, ESK, ESL)",
+        tipe: "Sport Adventure",
+        otr: 38180000,
+        uangMuka: 3200000,
+        gambar: "images/crf150l.jpg",
+        angsuran: { 6: 6813000, 12: 3748000, 18: 2746000, 24: 2257000, 30: 1971000, 36: 1790000, 42: 1652000 }
+    },
+    {
+        nama: "CBR 250 STD (KAA)",
+        tipe: "Sport",
+        otr: 78705000,
+        uangMuka: 10500000,
+        gambar: "images/cbr250.jpg",
+        angsuran: { 6: 12892000, 12: 7073000, 18: 5148000, 24: 4205000, 30: 3651000, 36: 3300000, 42: 3028000 }
+    }
+];
+
+// =====================================================
+// INFO DEALER
+// =====================================================
+const dealerInfo = {
+    nama: "Honda Pelaihari",
+    alamat: "Jl. H. Boejasin No.168, Angsau Kec. Pelaihari",
+    kontak: "FAISAL",
+    telepon: "0851 6361 4531",
+    wa: "6285163614531",
+    jam: "Senin–Sabtu, 08:00–17:00, Minggu dan Tanggal Merah 08:00-15:00",
+    periode: "1–30 Juni 2026",
+    linkBookingService: "https://booking.triomotor-pelaihari.com/",
+    syaratKredit: [
+        "KTP Pemohon dan Pasangan",
+        "Kartu Keluarga",
+        "Rekening Listrik atau Rekening Telepon PBB terakhir",
+        "Slip Gaji bulan terakhir atau Buku Rekening untuk wiraswasta"
+    ],
+    catatan: "Uang Muka sudah termasuk ADMINISTRASI dan ASURANSI TLO (tidak ada tambahan biaya apapun)."
+};
+
+// =====================================================
+// FUNGSI UTAMA
+// =====================================================
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const STORAGE_KEY = 'honda_chat_history';
+
+function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+}
+
+function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+}
+
+// =====================================================
+// FUNGSI MENYIMPAN & MEMUAT CHAT
+// =====================================================
+function saveChatHistory() {
+    const messages = [];
+    const messageElements = chatMessages.querySelectorAll('.message-bot, .message-user');
+    messageElements.forEach(el => {
+        const isUser = el.classList.contains('message-user');
+        let text = '';
+        if (isUser) {
+            const userText = el.querySelector('.user-text');
+            if (userText) text = userText.textContent;
+        } else {
+            const botText = el.querySelector('.bot-text');
+            if (botText) text = botText.innerHTML;
+        }
+        if (text) {
+            messages.push({ isUser, text });
+        }
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+}
+
+function loadChatHistory() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return false;
+    
+    try {
+        const messages = JSON.parse(saved);
+        if (messages.length === 0) return false;
+        
+        chatMessages.innerHTML = '';
+        
+        messages.forEach(msg => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = msg.isUser ? 'message-user' : 'message-bot';
+            if (msg.isUser) {
+                messageDiv.innerHTML = `<div class="user-text">${escapeHtml(msg.text)}</div>`;
+            } else {
+                messageDiv.innerHTML = `<div class="bot-avatar">🤖</div><div class="bot-text">${msg.text}</div>`;
+            }
+            chatMessages.appendChild(messageDiv);
+        });
+        
+        scrollToBottom();
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
+function resetChat() {
+    if (confirm('Reset percakapan? Semua riwayat chat akan hilang.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        chatMessages.innerHTML = '';
+        addMessage(`
+            Salam satu hati! 👋 Selamat datang di <b>Honda Pelaihari</b>!<br><br>
+            Saya siap membantu info harga, simulasi kredit, dan booking.<br><br>
+            <b>💡 Coba tanyakan:</b><br>
+            • "Harga Vario 160"<br>
+            • "Harga PCX"<br>
+            • "Simulasi kredit Beat"<br>
+            • "Semua harga"<br>
+            • "Motor matic" / "Motor sport" / "Motor cub"<br>
+            • "Booking service" / "Servis motor"
+        `, false);
+        addQuickReplies();
+    }
+}
+
+function addMessage(text, isUser = false, save = true) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = isUser ? 'message-user' : 'message-bot';
+    if (isUser) {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'user-text';
+        userDiv.textContent = text;
+        messageDiv.appendChild(userDiv);
+    } else {
+        messageDiv.innerHTML = `
+            <div class="bot-avatar">🤖</div>
+            <div class="bot-text">${text}</div>
+        `;
+    }
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+    
+    if (save) {
+        saveChatHistory();
+    }
+}
+
+function showTyping() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message-bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="bot-avatar">🤖</div>
+        <div class="typing-indicator">
+            <span></span><span></span><span></span>
+        </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    scrollToBottom();
+}
+
+function hideTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+}
+
+// =====================================================
+// FUNGSI BOOKING SERVICE
+// =====================================================
+function getBookingServiceMessage() {
+    return `
+        🔧 <b>BOOKING SERVICE HONDA PELAIHARI</b><br><br>
+        Silakan booking service motor Anda melalui link berikut:<br><br>
+        <a href="${dealerInfo.linkBookingService}" target="_blank" style="background:#2196F3; color:white; padding:12px 20px; border-radius:24px; text-decoration:none; display:inline-block; font-weight:bold;">📅 Booking Service Sekarang</a><br><br>
+        ⏰ <b>Jam Servis:</b> Senin–Sabtu, 08:00–16:00<br>
+        📍 Lokasi: ${dealerInfo.alamat}<br><br>
+        <b>✅ Yang perlu dibawa:</b><br>
+        • Buku servis<br>
+        • STNK motor<br><br>
+        Jangan lupa datang tepat waktu ya! 😊
+    `;
+}
+
+// =====================================================
+// PENCARIAN MOTOR
+// =====================================================
+function getMotorMatches(query) {
+    const q = query.toLowerCase().trim();
+    if (!q || q.length < 2) return [];
+    return motorData.filter(m => {
+        const n = m.nama.toLowerCase();
+        const tanpaKode = n.replace(/\([^)]*\)/g, '').trim();
+        return n.includes(q) || tanpaKode.includes(q);
+    });
+}
+
+function getMotorInfo(query) {
+    const q = query.toLowerCase().trim();
+    if (!q || q.length < 2) return null;
+    let best = null, bestScore = 0;
+    for (const m of motorData) {
+        const n = m.nama.toLowerCase();
+        const tanpaKode = n.replace(/\([^)]*\)/g, '').trim();
+        let score = 0;
+        if (tanpaKode === q || n === q) score = 100;
+        else if (tanpaKode.includes(q) || n.includes(q)) score = 50;
+        else {
+            const words = q.split(' ');
+            const matched = words.filter(w => w.length > 1 && (n.includes(w) || tanpaKode.includes(w))).length;
+            score = matched * 10;
+        }
+        if (score > bestScore) { bestScore = score; best = m; }
+    }
+    return bestScore > 0 ? best : null;
+}
+
+// =====================================================
+// FORMAT TAMPILAN (TANPA TOMBOL BOOKING SERVICE)
+// =====================================================
+function formatMotorDetail(motor) {
+    const tenorList = [6, 12, 18, 24, 30, 36, 42];
+    let angsuranRows = tenorList.map(t =>
+        `&nbsp;&nbsp;${t} bulan: <b>${formatRupiah(motor.angsuran[t])}</b>/bln`
+    ).join('<br>');
+
+    const motorNameShort = motor.nama.replace(/\s*\([^)]*\)/g, '').trim();
+    const motorNameEncoded = encodeURIComponent(motorNameShort);
+    
+    return `
+        <div class="motor-card">
+            <img class="motor-image" src="${motor.gambar || ''}" alt="${motor.nama}" onerror="this.style.display='none'">
+            <div class="motor-name">🏍️ ${motor.nama}</div>
+            <div class="motor-tipe">${motor.tipe}</div>
+            <div class="motor-price">💰 OTR: ${formatRupiah(motor.otr)}</div>
+            <div class="motor-dp">
+                💸 Uang Muka: ${formatRupiah(motor.uangMuka)}<br>
+                <i style="font-size:11px;color:#888;">(UM sudah termasuk admin & asuransi TLO)</i>
+            </div>
+            <div class="installment">
+                📅 <b>Simulasi Angsuran:</b><br>
+                ${angsuranRows}
+            </div>
+        </div>
+        <br>
+        <div class="quick-buttons">
+            <a href="https://wa.me/${dealerInfo.wa}?text=Halo%20kak%20FAISAL%2C%20saya%20ingin%20test%20ride%20${motorNameEncoded}" target="_blank" class="wa-button" style="background:#25D366; color:white; text-decoration:none; display:inline-block;">🛵 Test Ride </a>
+            <a href="https://wa.me/${dealerInfo.wa}?text=Halo%20kak%20FAISAL%2C%20saya%20tertarik%20dengan%20${motorNameEncoded}.%20Saya%20ingin%20booking%20motor%20ini." target="_blank" class="wa-button" style="background:#128C7E; color:white; text-decoration:none; display:inline-block;">📝 Saya Tertarik</a>
+            <button class="quick-btn" onclick="sendQuickMessage('Syarat kredit')">📋 Syarat</button>
+        </div>
+    `;
+}
+
+function getAllPrices(tipeFilter) {
+    let list = tipeFilter
+        ? motorData.filter(m => m.tipe.toLowerCase().includes(tipeFilter.toLowerCase()))
+        : motorData;
+
+    if (list.length === 0) return `Tidak ada motor dengan kategori tersebut.`;
+
+    const label = tipeFilter ? `MOTOR ${tipeFilter.toUpperCase()} HONDA` : 'DAFTAR HARGA MOTOR HONDA';
+    let html = `<b>📋 ${label}</b><br><i style="font-size:11px;">Berlaku ${dealerInfo.periode}</i><br><br>`;
+    for (const m of list) {
+        html += `• <b>${m.nama}</b><br>&nbsp;&nbsp;OTR: ${formatRupiah(m.otr)} | UM: ${formatRupiah(m.uangMuka)}<br>`;
+    }
+    html += '<br><i>💡 Ketik nama motor untuk detail & simulasi angsuran lengkap.</i>';
+    return html;
+}
+
+function getSyaratKredit() {
+    let html = `📋 <b>PERSYARATAN KREDIT</b><br><br>`;
+    for (const s of dealerInfo.syaratKredit) {
+        html += `✅ ${s}<br>`;
+    }
+    html += `<br><i>ℹ️ ${dealerInfo.catatan}</i>`;
+    return html;
+}
+
+function getDealerInfo() {
+    return `
+        🏢 <b>${dealerInfo.nama}</b><br><br>
+        📍 ${dealerInfo.alamat}<br>
+        👤 ${dealerInfo.kontak}<br>
+        📞 ${dealerInfo.telepon}<br>
+        ⏰ ${dealerInfo.jam}<br>
+        📅 Harga berlaku: ${dealerInfo.periode}<br><br>
+        <a href="https://wa.me/${dealerInfo.wa}?text=Halo%2C%20saya%20ingin%20info%20motor%20Honda" target="_blank" style="background:#25D366; color:white; padding:10px 16px; border-radius:24px; text-decoration:none; display:inline-block; font-weight:bold;">📱 Chat WhatsApp Sekarang</a>
+    `;
+}
+
+// =====================================================
+// PROSES PESAN
+// =====================================================
+async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+    addMessage(message, true);
+    chatInput.value = "";
+    showTyping();
+    setTimeout(() => {
+        hideTyping();
+        addMessage(processMessage(message), false);
+    }, 500);
+}
+
+function processMessage(message) {
+    const msg = message.toLowerCase().trim();
+
+    // Validasi minimal panjang
+    if (msg.length < 2 && !msg.includes('harga') && !msg.includes('info')) {
+        return `Halo! 👋 Silakan ketik pertanyaan yang lebih jelas, misalnya:<br>• "Harga Vario 160"<br>• "Info dealer"<br>• "Syarat kredit"<br>• "Booking service"`;
+    }
+
+    // BOOKING SERVICE (diletakkan di awal agar cepat terdeteksi)
+    if (msg.includes('service') || msg.includes('servis') || msg.includes('booking service') || 
+        (msg.includes('booking') && msg.includes('service')) || msg.includes('service motor') ||
+        msg.includes('servis motor') || msg.includes('booking servis')) {
+        return getBookingServiceMessage();
+    }
+
+    // Sapaan
+    const salam = ['halo', 'hai', 'hi', 'hello', 'hei', 'selamat pagi', 'selamat siang', 'selamat sore', 'selamat malam', 'assalamualaikum', 'permisi'];
+    if (salam.some(s => msg === s || msg.startsWith(s + ' '))) {
+        return `Salam satu hati! 👋 Selamat datang di <b>Honda Pelaihari</b>!<br><br>Saya siap bantu info harga, simulasi kredit, booking motor, dan booking service.<br><br>Ketik nama motor yang Anda minati, atau coba:<br>• "Semua harga"&nbsp;• "Motor matic"&nbsp;• "Motor sport"&nbsp;• "Motor cub"<br>• "Syarat kredit"&nbsp;• "Info dealer"&nbsp;• "Booking service" 😊`;
+    }
+
+    // Info dealer / lokasi / kontak
+    if (msg.includes('dealer') || msg.includes('alamat') || msg.includes('lokasi') || msg.includes('kontak') || msg.includes('telepon') || msg.includes('nomor') || msg.includes('info dealer') || msg.includes('showroom')) {
+        return getDealerInfo();
+    }
+
+    // Syarat kredit
+    if (msg.includes('syarat') || msg.includes('persyaratan') || msg.includes('dokumen') || msg.includes('ktp') || msg.includes('berkas')) {
+        return getSyaratKredit();
+    }
+
+    // Semua harga / daftar harga
+    if (msg.includes('semua harga') || msg.includes('daftar harga') || msg === 'harga' || msg === 'list harga') {
+        return getAllPrices();
+    }
+
+    // Filter tipe motor
+    if (msg.includes('motor matic') || msg === 'matic') return getAllPrices('Matic');
+    if (msg.includes('motor sport') || msg === 'sport') return getAllPrices('Sport');
+    if (msg.includes('motor cub') || msg.includes('motor bebek') || msg === 'cub' || msg === 'bebek') return getAllPrices('Cub');
+    if (msg.includes('motor adventure') || (msg.includes('adv') && !msg.includes('harga') && !msg.includes('simulasi'))) {
+        const matches = getMotorMatches('adv');
+        if (matches.length > 0) {
+            let html = `<b>🏍️ MOTOR ADVENTURE HONDA</b><br><br>`;
+            for (const m of matches) html += `• <b>${m.nama}</b> | OTR: ${formatRupiah(m.otr)}<br>`;
+            html += '<br><i>Ketik nama motor untuk detail!</i>';
+            return html;
+        }
+    }
+    if (msg.includes('motor premium') || msg.includes('premium')) return getAllPrices('Matic Premium');
+    if (msg.includes('motor fashion') || msg.includes('fashion')) return getAllPrices('Matic Fashion');
+
+    // Simulasi kredit / angsuran
+    if (msg.includes('simulasi') || msg.includes('kredit') || msg.includes('angsuran') || msg.includes('cicilan')) {
+        let motorName = msg.replace(/simulasi|kredit|angsuran|cicilan/gi, '').trim();
+        if (!motorName) return "Motor apa yang ingin disimulasikan? Contoh: 'Simulasi kredit PCX 160'";
+        const motor = getMotorInfo(motorName);
+        if (motor) return formatMotorDetail(motor);
+        return `Motor "<b>${escapeHtml(motorName)}</b>" tidak ditemukan. Coba ketik nama yang lebih spesifik, atau ketik "Semua harga" untuk melihat daftar lengkap.`;
+    }
+
+    // Harga spesifik motor
+    if (msg.includes('harga')) {
+        let motorName = msg.replace(/harga/gi, '').trim();
+        if (!motorName) return getAllPrices();
+        const matches = getMotorMatches(motorName);
+        if (matches.length === 1) return formatMotorDetail(matches[0]);
+        if (matches.length > 1) {
+            let html = `<b>Ditemukan ${matches.length} motor:</b><br><br>`;
+            for (const m of matches) html += `• <b>${m.nama}</b> — OTR: ${formatRupiah(m.otr)}<br>`;
+            html += '<br><div class="quick-buttons">';
+            for (const m of matches) {
+                const s = m.nama.replace(/\s*\([^)]*\)/g, '').trim();
+                html += `<button class="quick-btn" onclick="sendQuickMessage('Harga ${s}')">${s}</button>`;
+            }
+            html += '</div><br><i>Pilih salah satu untuk detail lengkap! atau tulis kode motor yang kamu inginkan</i>';
+            return html;
+        }
+        return `Motor "<b>${escapeHtml(motorName)}</b>" tidak ditemukan. Ketik "Semua harga" untuk daftar lengkap.`;
+    }
+
+    // Cari langsung tanpa keyword
+    const matches = getMotorMatches(msg);
+    if (matches.length === 1) return formatMotorDetail(matches[0]);
+    if (matches.length > 1) {
+        let html = `<b>🏍️ Ditemukan ${matches.length} motor yang cocok:</b><br><br>`;
+        for (const m of matches) html += `• <b>${m.nama}</b> — OTR: ${formatRupiah(m.otr)}<br>`;
+        html += '<br><div class="quick-buttons">';
+        for (const m of matches) {
+            const s = m.nama.replace(/\s*\([^)]*\)/g, '').trim();
+            html += `<button class="quick-btn" onclick="sendQuickMessage('${s}')">${s}</button>`;
+        }
+        html += '</div><br><i>Pilih salah satu untuk detail lengkap! atau tulis kode motor yang kamu inginkan</i>';
+        return html;
+    }
+
+    // Default
+    return `
+        Maaf, saya tidak mengerti pertanyaan: "<b>${escapeHtml(message)}</b>"<br><br>
+        Coba tanyakan:<br>
+        • "Harga Beat" / "Harga Vario 160" / "Harga PCX"<br>
+        • "Semua harga" / "Motor matic" / "Motor sport"<br>
+        • "Simulasi kredit Scoopy"<br>
+        • "Syarat kredit" / "Info dealer"<br>
+        • "Booking service" / "Servis motor"<br><br>
+        Atau hubungi kami langsung:<br>
+        <a href="https://wa.me/${dealerInfo.wa}" target="_blank" style="background:#25D366; color:white; padding:10px 16px; border-radius:24px; text-decoration:none; display:inline-block; font-weight:bold;">📱 WhatsApp ${dealerInfo.telepon}</a>
+    `;
+}
+
+function sendQuickMessage(message) {
+    chatInput.value = message;
+    sendMessage();
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') sendMessage();
+}
+
+function addQuickReplies() {
+    const quickDiv = document.createElement('div');
+    quickDiv.className = 'message-bot';
+    quickDiv.innerHTML = `
+        <div class="bot-avatar">🤖</div>
+        <div class="bot-text">
+            Pilih topik atau ketik pertanyaan Anda:
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="sendQuickMessage('Motor matic')">🛵 Motor Matic</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Motor sport')">🏎️ Motor Sport</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Motor cub')">🏍️ Motor Cub</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Semua harga')">📋 Semua Harga</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Syarat kredit')">📄 Syarat Kredit</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Info dealer')">🏢 Info Dealer</button>
+                <button class="quick-btn" onclick="window.open('${dealerInfo.linkBookingService}', '_blank')">🔧 Booking Service</button>
+            </div>
+        </div>
+    `;
+    chatMessages.appendChild(quickDiv);
+    scrollToBottom();
+    saveChatHistory();
+}
+
+// =====================================================
+// INITIALISASI
+// =====================================================
+if (!loadChatHistory()) {
+    addMessage(`
+        Salam satu hati! 👋 Selamat datang di <b>Honda Pelaihari</b>!<br><br>
+        Saya siap membantu info harga, simulasi kredit, dan booking.<br><br>
+        <b>💡 Coba tanyakan:</b><br>
+        • "Harga Vario 160"<br>
+        • "Harga PCX"<br>
+        • "Simulasi kredit Beat"<br>
+        • "Semua harga"<br>
+        • "Motor matic" / "Motor sport" / "Motor cub"<br>
+        • "Booking service" / "Servis motor"
+    `, false);
+    addQuickReplies();
+}
+
+const observer = new MutationObserver(() => {
+    saveChatHistory();
+});
+observer.observe(chatMessages, { childList: true, subtree: true });
+</script>
+</body>
+</html>

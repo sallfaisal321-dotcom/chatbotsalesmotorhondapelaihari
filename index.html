@@ -343,7 +343,7 @@
 // DATABASE MOTOR — HONDA PELAIHARI
 // Program Reguler, berlaku 1–30 Juni 2026
 // =====================================================
-const motorData = [
+const defaultMotorData = [
     // ============ CUB / BEBEK ============
     {
         nama: "Revo Fit FI (GB4)",
@@ -840,6 +840,87 @@ const motorData = [
 ];
 
 // =====================================================
+// SUMBER DATA HARGA — GOOGLE SHEETS (CSV)
+// Ganti link di bawah ini sesuai link CSV Google Sheets kamu.
+// motorData akan otomatis diisi dari Sheets saat halaman dibuka.
+// Kalau gagal memuat (offline/link salah), pakai data cadangan (defaultMotorData).
+// =====================================================
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1GDSdmRvKKIGaK8rcflnv7m94LqfNLnL0iqO0r2Sxq44/export?format=csv&gid=0";
+
+let motorData = defaultMotorData;
+
+function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+            if (c === '"') {
+                if (text[i + 1] === '"') { field += '"'; i++; }
+                else { inQuotes = false; }
+            } else {
+                field += c;
+            }
+        } else {
+            if (c === '"') inQuotes = true;
+            else if (c === ',') { row.push(field); field = ''; }
+            else if (c === '\r') { /* skip */ }
+            else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+            else field += c;
+        }
+    }
+    if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+    return rows.filter(r => r.length > 1 || (r.length === 1 && r[0].trim() !== ''));
+}
+
+function csvRowsToMotorData(rows) {
+    if (rows.length < 2) return null;
+    const header = rows[0].map(h => h.trim().toLowerCase());
+    const idx = (name) => header.indexOf(name);
+    const iNama = idx('nama'), iTipe = idx('tipe'), iOtr = idx('otr'), iUm = idx('uangmuka'), iGambar = idx('gambar');
+    const tenorCols = [6, 12, 18, 24, 30, 36, 42].map(t => ({ t, i: idx('ang' + t) }));
+
+    if (iNama < 0 || iOtr < 0 || iUm < 0) return null;
+
+    const result = [];
+    for (let r = 1; r < rows.length; r++) {
+        const cols = rows[r];
+        if (!cols || !cols[iNama] || cols[iNama].trim() === '') continue;
+        const angsuran = {};
+        tenorCols.forEach(({ t, i }) => {
+            if (i >= 0) angsuran[t] = parseInt((cols[i] || '0').replace(/[^\d]/g, ''), 10) || 0;
+        });
+        result.push({
+            nama: cols[iNama].trim(),
+            tipe: iTipe >= 0 ? cols[iTipe].trim() : '',
+            otr: parseInt((cols[iOtr] || '0').replace(/[^\d]/g, ''), 10) || 0,
+            uangMuka: parseInt((cols[iUm] || '0').replace(/[^\d]/g, ''), 10) || 0,
+            gambar: iGambar >= 0 ? cols[iGambar].trim() : '',
+            angsuran
+        });
+    }
+    return result.length > 0 ? result : null;
+}
+
+async function loadMotorDataFromSheet() {
+    try {
+        const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("Gagal fetch: " + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
+        const parsed = csvRowsToMotorData(rows);
+        if (parsed) {
+            motorData = parsed;
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.warn("Gagal memuat data dari Google Sheets, pakai data cadangan.", e);
+        return false;
+    }
+}
+
+// =====================================================
 // INFO DEALER
 // =====================================================
 const dealerInfo = {
@@ -1275,20 +1356,26 @@ function addQuickReplies() {
 // =====================================================
 // INITIALISASI
 // =====================================================
-if (!loadChatHistory()) {
-    addMessage(`
-        Salam satu hati! 👋 Selamat datang di <b>Honda Pelaihari</b>!<br><br>
-        Saya siap membantu info harga, simulasi kredit, dan booking.<br><br>
-        <b>💡 Coba tanyakan:</b><br>
-        • "Harga Vario 160"<br>
-        • "Harga PCX"<br>
-        • "Simulasi kredit Beat"<br>
-        • "Semua harga"<br>
-        • "Motor matic" / "Motor sport" / "Motor cub"<br>
-        • "Booking service" / "Servis motor"
-    `, false);
-    addQuickReplies();
+async function initChat() {
+    await loadMotorDataFromSheet();
+
+    if (!loadChatHistory()) {
+        addMessage(`
+            Salam satu hati! 👋 Selamat datang di <b>Honda Pelaihari</b>!<br><br>
+            Saya siap membantu info harga, simulasi kredit, dan booking.<br><br>
+            <b>💡 Coba tanyakan:</b><br>
+            • "Harga Vario 160"<br>
+            • "Harga PCX"<br>
+            • "Simulasi kredit Beat"<br>
+            • "Semua harga"<br>
+            • "Motor matic" / "Motor sport" / "Motor cub"<br>
+            • "Booking service" / "Servis motor"
+        `, false);
+        addQuickReplies();
+    }
 }
+
+initChat();
 
 const observer = new MutationObserver(() => {
     saveChatHistory();
